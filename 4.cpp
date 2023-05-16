@@ -8,7 +8,7 @@ protected:
 	char* ptr;//Сам Массив
 public:
 
-	BaseString(int Dimension = 100)//Встроенный конструктор
+	BaseString(const int Dimension = 100)//Встроенный конструктор
 	{
 		cout << "\nMyArray constructor";
 		try
@@ -22,7 +22,7 @@ public:
 		capacity = Dimension;
 		count = 0;
 	}
-	BaseString(int capacity_, int count_, char* ptr_)//Наш конструктор
+	BaseString(const int capacity_,const int count_,const char* ptr_)//Наш конструктор
 	{
 		cout << "\nMyArray constructor" << endl;
 		if (capacity_ < count_)
@@ -51,7 +51,7 @@ public:
 		capacity = capacity_;
 		count = count_;
 	}
-	BaseString(char* arr, int len)//Конструктор, принимающий текущий массив
+	BaseString(const char* arr,const int len)//Конструктор, принимающий текущий массив
 	{
 		cout << "\nMyArray constructor";
 		capacity = len + 10;
@@ -84,16 +84,16 @@ public:
 		}
 	}
 
-	int Capacity() { return capacity; }//Возвращение/изменение полей
-	int Size() { return count; }
-	char GetComponent(int index)
+	const int Capacity() { return capacity; }//Возвращение/изменение полей
+	const int Size() { return count; }
+	const char GetComponent(const int index)
 	{
 		if (index >= 0 && index < count)
 			return ptr[index];
 		else
 			throw string("Выход за пределы массива");
 	}
-	void SetComponent(int index, double value)
+	void SetComponent(const int index,const char value)
 	{
 		if (index >= 0 && index < count)
 			ptr[index] = value;
@@ -101,7 +101,7 @@ public:
 			throw string("Выход за пределы массива");
 
 	}
-	void push(char value)//Вставка элемента в конец массива
+	void push(const char value)//Вставка элемента в конец массива
 	{
 		if (value == NULL)
 		{
@@ -126,7 +126,7 @@ public:
 			throw string("Пустой массив");
 
 	}
-	char& operator[](int index)//Перегрузка[]
+	char& operator[](const int index)//Перегрузка[]
 	{
 		if (index >= 0 && index < count)
 			return ptr[index];
@@ -171,7 +171,7 @@ public:
 		}
 		ptr = a;
 	}
-	void print()//Принт
+	const void print()//Принт
 	{
 		cout << "\nMyArr, size: " << count << ", values: {";
 		int i = 0;
@@ -183,7 +183,7 @@ public:
 		}
 		cout << "}" << endl;
 	}
-	double IndexOff(char value)//Поиск по индексу
+	const double IndexOff(const char value)//Поиск по индексу
 	{
 		for (int i = 0; i < count; i++)
 		{
@@ -199,19 +199,19 @@ public:
 class ChildString:public BaseString
 {
 public:
-	ChildString(int Dimension = 100) : BaseString(Dimension)//Переопределяемя конструкторы
+	ChildString(const int Dimension = 100) : BaseString(Dimension)//Переопределяемя конструкторы
 	{
 		cout << "\nMyArrayChild constructor";
 	}
-	ChildString(char* arr, int len) : BaseString(arr, len)//Переопределяемя конструкторы
+	ChildString(const char* arr,const int len) : BaseString(arr, len)//Переопределяемя конструкторы
 	{
 		cout << "\nMyArrayChild constructor";
 	}
-	ChildString(int capacity_, int count_, char* ptr_) : BaseString(capacity_, count_, ptr_)
+	ChildString(const int capacity_,const int count_,const char* ptr_) : BaseString(capacity_, count_, ptr_)
 	{
 		cout << "\nMyArrayChild constructor";
 	}
-	void RemoveAt(int Index)//Удаленеи элемента
+	void RemoveAt(const int Index)//Удаленеи элемента
 	{
 		for (int i = Index; i < count - 1; i++)
 		{
