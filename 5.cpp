@@ -3,10 +3,10 @@
 #include <typeinfo>
 #include <string>
 using namespace std;
-class Exception : public std::exception//Класс-исключение
+class Exception : public std::exception
 {
 protected:
-	char* str; //сообщение об ошибке
+	char* str; 
 public:
 	Exception(const char* s)
 	{
@@ -23,7 +23,7 @@ public:
 		delete[] str;
 	}
 
-	//функцию вывода можно будет переопределить в производных классах, когда будет ясна конкретика
+	
 
 	virtual void print()
 	{
@@ -77,57 +77,91 @@ public:
 		cout << "TooLargeSizeException: " << str;
 	}
 };
-class BaseMatrix//Основной класс
+class BaseMatrix
 {
 protected:
-	double** ptr;//Наш двумерный массив
-	int height;//Высота
-	int width;//Ширина
+	double** ptr;
+	int height;
+	int width;
 public:
 	BaseMatrix(int Height = 2, int Width = 2)
 	{
 		if (Height <= 0 || Width <= 0)
 		{
-			NonPositiveSizeException* k =new NonPositiveSizeException("");
-			throw *k;
+			throw NonPositiveSizeException("");
 		}
 		height = Height;
 		width = Width;
 		ptr = new double* [height];
+		if (ptr == NULL)
+		{
+			throw TooLargeSizeException("");
+		}
 		for (int i = 0; i < height; i++)
+		{
 			ptr[i] = new double[width];
+			if (ptr[i] == NULL)
+			{
+				throw TooLargeSizeException("");
+			}
+		}
 
 	}
 	BaseMatrix(double** a,int height_,int width_)
 	{
+		if (a == NULL)
+		{
+			Exception* k = new Exception("");
+			throw* k;
+		}
 		height = height_;
 		width = width_;
 		ptr = new double* [height];
-		for (int i = 0; i < height; i++)
+		if (ptr == NULL)
 		{
-			ptr[i] = new double[width];
+			throw TooLargeSizeException("");
 		}
 		for (int i = 0; i < height; i++)
 		{
+			ptr[i] = new double[width];
+			if (ptr[i] == NULL)
+			{
+				throw TooLargeSizeException("");
+			}
+		}
+		for (int i = 0; i < height; i++)
+		{
+			if (a[i] == NULL)
+			{
+				throw Exception("");
+			}
 			for (int j = 0; j < width; j++)
 			{
 				ptr[i][j] = a[i][j];
 			}
 		}
 	}
-	BaseMatrix(const BaseMatrix& M)//Конструктор копий
+	BaseMatrix(const BaseMatrix& M)
 	{
 		height = M.height;
 		width = M.width;
 		ptr = new double* [height];
+		if (ptr == NULL)
+		{
+			throw TooLargeSizeException("");
+		}
 		for (int i = 0; i < height; i++)
 		{
 			ptr[i] = new double[width];
+			if (ptr[i] == NULL)
+			{
+				throw TooLargeSizeException("");
+			}
 			for (int j = 0; j < width; j++)
 				ptr[i][j] = M.ptr[i][j];
 		}
 	}
-	~BaseMatrix()//Деструктор
+	~BaseMatrix()
 	{
 		if (ptr != NULL)
 		{
@@ -137,15 +171,37 @@ public:
 			ptr = NULL;
 		}
 	}
-	int Get_height()
+	int Get_height() const
 	{
 		return height;
 	}
-	int Get_width()
+	int Get_width() const
 	{
 		return width;
 	}
-	void print()//Вывод
+	void Set_height(int height_)
+	{
+		if (height_ > 0)
+		{
+			height = height_;
+		}
+		else
+		{
+			throw NonPositiveSizeException("");
+		}
+	}
+	void Set_width(int width_)
+	{
+		if (width_ > 0)
+		{
+			width = width_;
+		}
+		else
+		{
+			throw NonPositiveSizeException("");
+		}
+	}
+	void print() const
 	{
 		for (int i = 0; i < height; i++)
 		{
@@ -154,20 +210,18 @@ public:
 			cout << "\n";
 		}
 	}
-	double& operator()(int row, int column)//Вывод элемента
+	double& operator()(int row, int column) const
 	{
 		if (row < 0 || column < 0 || row >= height || column >= width)
-			throw Exception("Index is out of bounds");
+			throw IndexOutOfBoundsException("");
 		return ptr[row][column];
 	}
 	BaseMatrix operator =(BaseMatrix M)
 	{
 		return BaseMatrix(M);
 	}
-	friend ostream& operator << (ostream& ustream, BaseMatrix
-		obj);
-	friend istream& operator >> (istream& ustream, BaseMatrix&
-		obj);
+	friend ostream& operator << (ostream& ustream, BaseMatrix obj);
+	friend istream& operator >> (istream& ustream, BaseMatrix& obj);
 };
 class ChildMatrix: public BaseMatrix
 {
@@ -178,6 +232,10 @@ public:
 	void filing()
 	{
 		double** ptr_ = new double* [height];
+		if (ptr_ == NULL)
+		{
+			throw Exception("");
+		}
 		for (int i = 0; i < height; i++)
 		{
 			ptr_[i] = new double[width];
@@ -185,6 +243,10 @@ public:
 
 		for (int i = 0; i < height; i++)
 		{
+			if (ptr_[i] == NULL)
+			{
+				throw Exception("");
+			}
 			for (int j = 0; j < width; j++)
 			{
 				ptr_[i][j] =i + j;
@@ -196,6 +258,10 @@ public:
 	{
 		int s;
 		double* k = new double[height];
+		if (k == NULL)
+		{
+			throw Exception("");
+		}
 		for (int i = 0; i < height; i++)
 		{
 			s = 1;
@@ -214,6 +280,15 @@ public:
 		obj);
 	friend istream& operator >> (istream& ustream, BaseMatrix&
 		obj);
+};
+class FileException :public Exception
+{
+public:
+	FileException(const char* s) : Exception(s) {}
+	virtual void print()
+	{
+		cout << "FileException: " << str;
+	}
 };
 ostream& operator << (ostream& ustream, BaseMatrix obj)//cout
 {
@@ -245,6 +320,13 @@ istream& operator >> (istream& ustream, BaseMatrix& obj)//cin
 	{
 		string k1, k2;
 		ustream >> k1 >> k2;
+		obj.Set_height(atof(k1.c_str()));
+		obj.Set_width(atof(k2.c_str()));
+		obj.ptr = new double* [obj.height];
+		for (int i = 0; i < obj.height; i++)
+		{
+			obj.ptr[i] = new double[obj.width];
+		}
 		string k;
 		for (int i = 0; i < obj.height; i++)
 		{
@@ -263,39 +345,8 @@ istream& operator >> (istream& ustream, BaseMatrix& obj)//cin
 		return ustream;
 	}
 }
-ChildMatrix Reader(ifstream fin)
-{
-	string k,k1, k2;
-	fin >> k1;
-	fin >> k2;
-	int height, width;
-	height = atof(k1.c_str());
-	width = atof(k2.c_str());
-	double** ptr = new double* [height];
-	for (int i = 0; i < height; i++)
-		ptr[i] = new double[width];
-	for (int i = 0; i < height; i++)
-	{
-		for (int j = 0; j < width; j++)
-		{
-			fin >> k;
-			ptr[i][j] = atof(k1.c_str());
-		}
-	}
-	return ChildMatrix(ptr, height, width);
-}
 int main()
 {
-	
-	
-	/*double** m = new double* [2];
-		for (int i = 0; i < 2; i++)
-			m[i] = new double[2];
-		m[0][0] = 1;
-		m[0][1] = 1;
-		m[1][0] = 1;
-		m[1][1] = 1;*/
-
 	try
 	{
 		ChildMatrix M = ChildMatrix(2, 2);
@@ -305,13 +356,23 @@ int main()
 		M1.filing();
 		ofstream fout;
 		fout.open("MatrixFile.txt");
+		if (!fout.is_open())
+		{
+			FileException* k = new FileException("");
+			throw* k;
+		}
 		fout << M1;
 		fout << M2;
 		fout.close();
 		ifstream fin;
 		fin.open("MatrixFile.txt");
+		if (!fin.is_open())
+		{
+			FileException* k = new FileException("");
+			throw* k;
+		}
 		ChildMatrix f = ChildMatrix(2, 2);
-		ChildMatrix f1 = ChildMatrix(5, 5);
+		ChildMatrix f1 = ChildMatrix(2, 2);
 		fin >> f;
 		fin >> f1;
 		cout << f;
@@ -322,7 +383,10 @@ int main()
 	{
 		e.print();
 	}
-	
+	catch (Exception& e)
+	{
+		e.print();
+	}
 }
 
 
